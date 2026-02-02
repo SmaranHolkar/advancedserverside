@@ -6,7 +6,10 @@ class userService{
     }
 
     async create(req) {
-        return await this.ud.create(req);
+        //validation
+        const result = await this.ud.create(req);
+        //Some checks and balances and business logic
+        return result;
     }
 
     async retrievebyemail(req) {

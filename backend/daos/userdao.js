@@ -1,5 +1,5 @@
 const createResponse = require('../utils/response');
-
+const connection = require('../database/dbconfig');
 
 class userdao{
 
@@ -9,8 +9,26 @@ class userdao{
     }
 
     async create(req) {
-        return createResponse(true, { "fn":req.body.fn, "sn":req.body.sn });
-    }
+        return new Promise((resolve, reject) => {
+            connection.run(`insert into users (fn, sn, password, email, userType) values (?,?,?,?,?)`, [...Object.values(req.body)],
+                function (err) {
+                    if (err) {
+                        return resolve(createResponse(false, null, err));
+                    }
+                    if (this.changes === 0) {
+                        return resolve(createResponse(false, null, "insertion failed"));
+                    }
+                    const userData = {
+                        id: this.lastID,
+                        email: req.body.email,
+                        fn: req.body.fn,
+                        sn: req.body.sn,
+                    }
+                    resolve(createResponse(true, userData, userData));
+                })
+            })
+        }
+    
 
     async retrievebyemail(req) {
 
